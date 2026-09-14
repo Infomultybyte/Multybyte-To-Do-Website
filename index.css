@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-paper text-slate-800 antialiased;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+:focus-visible {
+  outline: 2px solid #426979;
+  outline-offset: 2px;
+}
+
+/* Used by NotificationToastStack — a quick slide/fade-in for pop-up
+   notifications so they don't just snap into place. */
+@keyframes notification-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

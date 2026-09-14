@@ -1,0 +1,33 @@
+-- =====================================================================
+-- Multybyte To-Do Management System — Excel Export (Part 7)
+-- Nothing in this file needs to be run — like
+-- admin_reports_hardening.sql before it, this documents a decision
+-- rather than a schema/policy change.
+--
+-- Excel export (src/hooks/useReportExport.js,
+-- src/services/exportService.js) reads from exactly the same two
+-- tables Reports already reads, through the exact same admin-scoped
+-- SELECT policies:
+--
+--   * public.tasks            -> "tasks_select_admin_all"
+--   * public.task_completions -> "completions_select_admin_all"
+--
+-- (both from admin_dashboard_part2_hardening.sql, gated on
+-- public.is_admin()). Staff/email/department come from the Reports
+-- page's own already-loaded profiles (profiles_select_admin_all) — no
+-- separate profiles query was added for export.
+--
+-- The export runs entirely in the signed-in admin's own browser
+-- session: it calls supabase-js with the admin's normal anon-key +
+-- JWT session (the same client every other page in this app uses), and
+-- the resulting .xlsx file is generated and downloaded client-side via
+-- the `xlsx` (SheetJS) library. No service-role key is used, requested,
+-- or exposed anywhere in this feature, and no Edge Function or other
+-- server-side code was added for it — a staff account could never
+-- reach this code path at all, since /admin/reports itself is gated by
+-- ProtectedRoute(allowedRoles=['admin']) (App.jsx), same as every other
+-- /admin/* route.
+--
+-- Export is read-only, same as the rest of Reports — no new
+-- INSERT/UPDATE/DELETE policy or column grant was added or is needed.
+-- =====================================================================

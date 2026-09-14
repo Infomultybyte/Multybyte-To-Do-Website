@@ -1,0 +1,33 @@
+-- =====================================================================
+-- Multybyte To-Do Management System — Admin Reports (Part 6)
+-- Nothing in this file needs to be run — it documents a decision, not
+-- a schema/policy change. No SQL changes were required for the
+-- /admin/reports page.
+--
+-- Why: Reports is 100% read-only (Staff performance table, Monthly
+-- report, Comparison). Every value it shows is derived, client-side,
+-- from three reads that already have admin-scoped SELECT policies in
+-- place from an earlier phase:
+--
+--   * public.profiles        -> "profiles_select_admin_all"
+--   * public.tasks            -> "tasks_select_admin_all"
+--   * public.task_completions -> "completions_select_admin_all"
+--
+-- (all three defined in admin_dashboard_part2_hardening.sql, gated on
+-- public.is_admin()). Reports intentionally reuses the exact same
+-- application-layer queries the Admin Dashboard uses
+-- (getAllStaffProfiles / getTasksForAllStaff / getCompletionsForAllStaff
+-- in src/services/adminDashboardService.js, re-exported from
+-- src/services/reportsService.js) rather than writing new ones, so it
+-- rides on that existing, already-audited RLS surface rather than
+-- opening any new one.
+--
+-- Reports never inserts, updates, or deletes anything — no new
+-- INSERT/UPDATE/DELETE policy or column grant was added for it, and
+-- none should be, unless a future phase (e.g. saving a named report or
+-- an Excel export job) actually needs to write.
+--
+-- A Staff account gets no additional access from anything above: these
+-- are the same three SELECT-only, admin-gated policies every other
+-- Admin page already relied on before this page existed.
+-- =====================================================================
